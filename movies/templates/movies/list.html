@@ -1,10 +1,16 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<h1>{{ user }}</h1>
+
 {% for movie in movies %}
     {{ movie.id }}
-    {{ movie.title }}
+    <a href="{% url 'movies:createscore' movie.pk %}">{{ movie.title }}</a>
     {% for score in movie.score_set.all %}
         {{ score.user }}
         {{ score.grade }}
         {{ score.movie.title }}
     {% endfor %}
 {% endfor %}
+{% endblock %}
 

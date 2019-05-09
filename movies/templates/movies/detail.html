@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block body %}
+{{ movie.title }}
+{{ movie.summary }}
+
+<form action="{% url 'movies:createscore' movie.pk %}" method="POST">
+    {% csrf_token %}
+    {{ score_form|crispy }}
+    <input type="submit" value="평점주기">
+</form>
+{% endblock %}

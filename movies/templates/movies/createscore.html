@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+<form method="POST">
+    {% csrf_token %}
+    {{ score_form|crispy }}
+    <input type="submit" value="평점주기">
+</form>
+{% endblock %}

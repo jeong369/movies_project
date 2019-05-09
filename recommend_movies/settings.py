@@ -58,7 +58,7 @@ ROOT_URLCONF = 'recommend_movies.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'recommend_movies', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
