@@ -1,0 +1,10 @@
+{% for movie in movies %}
+    {{ movie.id }}
+    {{ movie.title }}
+    {% for score in movie.score_set.all %}
+        {{ score.user }}
+        {{ score.grade }}
+        {{ score.movie.title }}
+    {% endfor %}
+{% endfor %}
+
