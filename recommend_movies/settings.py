@@ -39,8 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'django_extensions',
-    'accounts',
     'movies',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -126,3 +126,13 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'accounts.User'
+
+FIXTURE_DIRS = (
+   '/path/to/movies/fixtures/',
+)
+
+
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

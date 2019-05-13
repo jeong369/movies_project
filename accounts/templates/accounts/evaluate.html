@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block css %}
+<style>
+    input[type=checkbox] + label {
+      display: inline;
+      margin: 0.4em;
+      cursor: pointer;
+      padding: 0.4em;
+    }
+    
+    input[type=checkbox] {
+      display: none;
+    }
+    
+    input[type=checkbox] + label:before {
+      content: "\2764";
+      border: 1px solid #000000;
+      border-radius: 0.3em;
+      display: inline-block;
+      width: 1.7em;
+      height: 1.7em;
+      padding-left: 0.1em;
+      padding-bottom: 0.2em;
+      margin-right: 0.4em;
+      vertical-align: bottom;
+      color: transparent;
+      transition: .4s;
+    }
+    
+    input[type=checkbox] + label:active:before {
+      transform: scale(0);
+    }
+    
+    input[type=checkbox]:checked + label:before {
+      background-color: #ffb3cc;
+      border-color: #ffb3cc;
+      color: #ffffff;
+    }
+    
+    input[type=checkbox]:disabled + label:before {
+      transform: scale(1);
+      border-color: #000000;
+    }
+    
+    input[type=checkbox]:checked:disabled + label:before {
+      transform: scale(1);
+      background-color: #ffffff;
+      border-color: #ffffff;
+    }
+</style>
+{% endblock %}
+{% block body %}
+
+<div id="app" class="mx-auto" style="width: 90%">
+    <div class="my-3">
+        <h2 class="d-flex justify-content-center">좋아하는 장르를 선택해주세요!</h2>
+        <form>
+            <div class="row">
+                {% for genre in genres %}
+                <div class="col-3 my-1">
+                    {% if user in genre.like_users.all %}
+                    <input type="checkbox" id="genre{{genre.id}}" name="{{genre.name}}" value="{{genre.name}}" 
+                    checked="checked" @click="createLikeGenres({{genre.id}})">
+                    {% else %}
+                    <input type="checkbox" id="genre{{genre.id}}" name="{{genre.name}}" value="{{genre.name}}"
+                    @click="createLikeGenres({{genre.id}})">
+                    {% endif %}
+                    <label for="genre{{genre.id}}">{{genre.name}}</label>
+                </div>
+                
+                {% endfor %}
+            </div>
+        </form>
+        
+        <!--<div class="col my-3 d-flex justify-content-between">-->
+            <!--좋아요-->
+        <!--    <i data-name="{{post.user}}" data-id="{{post.pk}}" class="{% if user in genre.like_users.all %} fas {% else %} far {% endif %} fa-heart fa-lg like-button" style="color: rgb(237, 73, 86);"></i>-->
+        <!--</div>-->
+        
+        
+        
+    </div>
+    
+    <div class="row">
+        {% for movie in movies %}
+        <div class="col-2 my-3">
+            <img src="{{ movie.imageurl }}"><br>
+            {{ movie.title }}
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+    const app = new Vue({
+        el: "#app",
+        data:{
+            genre: [],
+        },
+        methods: {
+            createLikeGenres: function(genre_id) {
+                const url = `/movies/like_genres/${genre_id}/`
+                console.log(url)
+                axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+                axios.defaults.xsrfCookieName="csrftoken"
+                axios.defaults.xsrfHeaderName="X-CSRFToken"
+                axios.post(url)
+                .then(response => {
+                    console.log(response)
+                })
+                .catch(error => console.log(error))
+            }
+        }
+    })
+
+    
+</script>
+{% endblock %}

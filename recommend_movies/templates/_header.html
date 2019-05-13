@@ -1,0 +1,129 @@
+{% load crispy_forms_tags %}
+{% load static %}
+
+<head>
+    <style>
+        header_img {
+            position: absolute;
+            right: 10%;
+            /*width: 200px;*/
+        }
+        login_section {
+            position: absolute;
+            left: 15%;
+            background-color: white;
+            background-color: rgba( 255, 255, 255, 0.7 );
+        
+        }
+        .button_custom {
+            background-color: white;
+            border: 1px solid pink;
+            width: 120px;
+        }
+        form > input {
+            background-color: white;
+            border: 1px solid pink;
+            width: 120px;
+        
+        }
+        sidebar {
+            position: absolute;
+            background-color: white;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    
+    
+    <div class="container-fluid mx-auto" style="height:400px; background-image: url( '{% static 'back.jpg' %}' ); background-size: cover;">
+
+        <header_img style="background-image: url('{% static 't1.jpg' %}'); width: 600px; height: 280px; margin-top: 60px; "></header_img>
+        
+        <sidebar class="" style="width: 200px; height: 300px; margin-top: 60px">
+            {% for anyuser in userlists %}
+                <div class="fieldWrapper" >
+                    {{ anyuser.errors }}
+                    <span>{{ anyuser.username }}</span>
+                    {% if anyuser in user.followers.all %}
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'accounts:follow' anyuser.pk %}'">Unfollow!</button>
+                    {% else %}
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'accounts:follow' anyuser.pk %}'">Follow!</button> 
+                    {% endif %}
+                    {% if anyuser.help_text %}
+                    <p class="help">{{ anyuser.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </sidebar>
+        
+        
+        <login_section class="p-3" style="width: 300px; height: 200px; margin-top: 140px">
+                
+            <span style="font-size: 30px">Member</span><br>
+            {% if user.is_authenticated %}
+            <span style="font-size: 20px">{{user}}님</span><i class="fas fa-user"></i><br>
+            <form>
+            <input type="button" value="Logout" onclick="window.location.href='{% url 'accounts:logout' %}'"/>
+            <input type="button" value="Info" onclick="window.location.href='{% url 'accounts:info' user.pk %}'"/>
+            </form>
+            {% else %}
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in login_form %}
+                    <div class="fieldWrapper" >
+                        {{ field.errors }}
+                        <!--{{ field.label_tag }}--> {{ field }}
+                        {% if field.help_text %}
+                        <p class="help">{{ field.help_text|safe }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                
+                <!--{{ user_form }}-->
+                <input type="submit" value="Login">
+                <!--<a href="{% url 'accounts:logout' %}" class="button button_custom">Logout</a>-->
+                <input type="button" value="Join" data-toggle="modal" data-target="#signup_modal"/>
+                <!-- onclick="window.location.href='#signup_modal'" -->
+            </form>
+                
+
+            <!--<a href="{% url 'accounts:logout' %}" class="button button_custom"></a>-->
+            <!--<button class="button button_custom" type="button" onclick="window.location.href={% url 'accounts:logout' %}">Logout</button>-->
+            {% endif %}
+            
+        </login_section>
+    </div>
+        
+    <div id="signup_modal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">회원가입</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{% url 'accounts:signup' %}" method="POST">
+                            {% csrf_token %}
+                            {% for field in signup_form %}
+                                <div class="fieldWrapper" >
+                                    {{ field.errors }}
+                                    <p>{{ field.label_tag }} : {{ field }}</p>
+                                    {% if field.help_text %}
+                                    <p class="help">{{ field.help_text|safe }}</p>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <input type="submit" value="Save changes"/>
+                        </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+    
+</body>

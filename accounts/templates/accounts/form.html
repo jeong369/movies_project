@@ -1,17 +1,13 @@
-{% extends 'base.html' %}
+
 {% load crispy_forms_tags %}
 
-{% block body %}
 <div>
-    
     <h3>회원가입</h3>
-    
     <form method="POST">
         {% csrf_token %}
-        {{ user_form|crispy }}
+        {{ signup_form|crispy }}
         <input type="submit" value="가입 완료">
     </form>
     
     <p>결제 정보요? 충분히 둘러보시고 입력해도 늦지 않아요</p>
 </div>
-{% endblock %}
