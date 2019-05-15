@@ -13,8 +13,10 @@ class Actor(models.Model):
     name = models.CharField(max_length=150)
     
     def __str__(self):
-        return f'{self.pk} : {self.name}'
+        return self.name
     
+class Hashtag(models.Model):
+    content = models.TextField(blank=True)
 
 class Movie(models.Model):
     title = models.CharField(max_length=150)
@@ -26,10 +28,11 @@ class Movie(models.Model):
     rated = models.CharField(max_length=150, blank=True)
     summary = models.TextField(blank=True)
     imageurl = models.CharField(max_length=150, blank=True)
-
+    hashtags = models.ManyToManyField(Hashtag, blank=True, related_name="movies")
+    score_users = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Score', related_name='score_movies')
 
 class Score(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     grade = models.IntegerField()
     

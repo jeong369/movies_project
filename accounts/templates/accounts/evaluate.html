@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load bootstrap_pagination %}
+
 {% block css %}
 <style>
     input[type=checkbox] + label {
@@ -47,9 +50,21 @@
       background-color: #ffffff;
       border-color: #ffffff;
     }
+
+    
+    
+    .star-input>.input>input:checked+label{display: inline-block;vertical-align:middle;background:url('{% static 'img/grade_img.png' %}')no-repeat;}
+
+
+
+
+
+
 </style>
 {% endblock %}
 {% block body %}
+
+
 
 <div id="app" class="mx-auto" style="width: 90%">
     <div class="my-3">
@@ -71,24 +86,71 @@
                 {% endfor %}
             </div>
         </form>
-        
-        <!--<div class="col my-3 d-flex justify-content-between">-->
-            <!--좋아요-->
-        <!--    <i data-name="{{post.user}}" data-id="{{post.pk}}" class="{% if user in genre.like_users.all %} fas {% else %} far {% endif %} fa-heart fa-lg like-button" style="color: rgb(237, 73, 86);"></i>-->
-        <!--</div>-->
-        
-        
-        
+    </div>
+    
+    <div class="mx-auto">
+        <h4 v-if="count < 10"><p class="d-inline" v-text="count"></p>개 선택! 10개를 채워보세요!</h4>
+        <h4 v-else-if="count === 10">10개 달성! 더 선택하시면 추천이 정확해집니다~
+        <a href="{% url 'movies:list' %}" role="button" class="btn btn-success" >이제 추천받기~</a></h4>
+        <h4 v-else><span class="d-inline" v-text="count"></span>개 선택! 더 선택하시면 추천이 정확해집니다~<a href="{% url 'movies:list' %}" role="button" class="btn btn-success" >이제 추천받기~</a></h4>
     </div>
     
     <div class="row">
+        <div v-for="movie in movies" class="mx-auto col-5 col-md-4 col-lg-3 col-xl-2 my-3">
+            <a :href="`/movies/${movie.id}`"><img :src="movie.imageurl"></a><br>
+            <p v-text="movie.title" class="d-inline mx-2"></p>
+            <i @click="likeMovies(movie)" 
+                dataid="{{ movie.pk }}" 
+                :class="{fas: movie.is_like, far: !movie.is_like, 'fa-heart': true, 'like-movie-button': true}"
+                style="color:red">
+            </i>
+            
+            <star-rating id="{{movie.pk}}" :key="movie.id" @rating-selected="setRating(movie, movie.rating)" v-model="movie.rating"
+                        v-bind:increment="1"
+                         v-bind:max-rating="5"
+                         v-bind:star-size="30">
+            </star-rating>
+        </div>
+        
+    </div>
+    
+    
+    <!--<div class="row">-->
+    <!--    {% for movie in movies %}-->
+    <!--    <div class="col-2 col-xl-3 my-3">-->
+    <!--        <img src="{{ movie.imageurl }}"><br>-->
+    <!--        {{ movie.title }}-->
+    <!--        <form action="/movies/{{movie.id}}/createscore/">-->
+    <!--            Quantity (between 1 and 5):-->
+    <!--            <input type="number" name="quantity" min="1" max="5">-->
+    <!--            <input type="submit">-->
+    <!--        </form>-->
+    <!--        <star-rating v-model="rating"-->
+    <!--                    v-bind:increment="0.5"-->
+    <!--                     v-bind:max-rating="5"-->
+    <!--                     v-bind:star-size="30">-->
+                
+    <!--        </star-rating>-->
+    <!--    </div>-->
+    <!--    {% endfor %}-->
+    <!--</div>-->
+    
+    
+    <!--<div class="row">
         {% for movie in movies %}
         <div class="col-2 my-3">
             <img src="{{ movie.imageurl }}"><br>
             {{ movie.title }}
+            <star-rating v-model="rating"
+                        v-bind:increment="0.5"
+                         v-bind:max-rating="5"
+                         v-bind:star-size="30">
+                
+            </star-rating>
         </div>
         {% endfor %}
-    </div>
+    </div>-->
+    <div><i @click="addMovies" class="d-flex justify-content-center fas fa-chevron-circle-down fa-3x"></i></div>
 
 </div>
 
@@ -97,16 +159,46 @@
 
 
 {% block script %}
+<script src="https://unpkg.com/vue-star-rating/dist/star-rating.min.js"></script>
+
 <script>
+    Vue.component('star-rating', VueStarRating.default);
     const app = new Vue({
         el: "#app",
+        delimiters: ['$[{', '}]'],
         data:{
             genre: [],
+            movies: [],
+            count: 0,
+            newMovies: [],
+            // rating: 0,
         },
         methods: {
+            getMovies: function() {
+                const url = `/accounts/evaluate_movies/`
+                console.log(url)
+                
+                axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+                axios.defaults.xsrfCookieName="csrftoken"
+                axios.defaults.xsrfHeaderName="X-CSRFToken"
+                axios.post(url)
+                .then(response => {
+                    console.log(response.data)
+                    this.count = response.data[0][0].like_count
+                    // tmpMovie = response.data
+                    this.movies = response.data.slice(1, 31)
+                    
+                    this.movies = this.movies.map(movie => {
+                        return {...movie, 'is_like': false, rating: 0}
+                    })
+                })
+                .catch(error => console.log(error))
+                
+            },
             createLikeGenres: function(genre_id) {
                 const url = `/movies/like_genres/${genre_id}/`
                 console.log(url)
+
                 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
                 axios.defaults.xsrfCookieName="csrftoken"
                 axios.defaults.xsrfHeaderName="X-CSRFToken"
@@ -115,10 +207,114 @@
                     console.log(response)
                 })
                 .catch(error => console.log(error))
+            },
+            setRating: function(movie, rating){
+                console.log("movie", rating)
+                // console.log(movie.id)
+                const url = `/movies/${movie.id}/createscore/`
+                console.log(url)
+                
+                axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+                axios.defaults.xsrfCookieName="csrftoken"
+                axios.defaults.xsrfHeaderName="X-CSRFToken"
+                axios.post(url, {
+                    grade: rating
+                })
+                .then(response => {
+                    console.log(response)
+                    movie = response.data
+                    console.log(movie)
+                    if (response.data['is_update'] === false){
+                        this.count += 1
+                    }
+                    console.log(this.count)
+                    
+                })
+                .catch(error => console.log(error))
+            },
+            likeMovies: function(movie) {
+        
+                axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+                axios.defaults.xsrfCookieName="csrftoken"
+                axios.defaults.xsrfHeaderName="X-CSRFToken"
+                
+                axios.post(`/movies/${movie.id}/like/`)
+                .then(response => {
+                    console.log(response)
+                    // console.log(this.classList)
+                    // if (response.data.is_like) {
+                    //     this.target.classList.remove('far')
+                    //     this.target.classList.add('fas')
+                    // } else {
+                    //     this.target.classList.remove('fas')
+                    //     this.target.classList.add('far')
+                    // }
+                    movie.is_like = !movie.is_like
+                })
+                .catch(error => console.log(error))
+            },
+            addMovies: function() {
+                const url = `/accounts/evaluate_movies/`
+                // console.log(url)
+                
+                axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+                axios.defaults.xsrfCookieName="csrftoken"
+                axios.defaults.xsrfHeaderName="X-CSRFToken"
+                axios.post(url)
+                .then(response => {
+                    // console.log("mv", this.movies)
+                    // console.log("res", response.data)
+                    // tmpMovie = response.data
+                    // console.log("movies", this.movies)
+                    this.newMovies = response.data.slice(1, 31)
+                    this.newMovies = this.newMovies.map(movie => {
+                        return {...movie, 'is_like': false, rating: 0}
+                    })
+                    // console.log(this.newMovies)
+                    this.newMovies.forEach(function(newmv) {
+                        // console.log(newmv)
+                        // console.log(app.$data.movies)
+                        app.$data.movies.push(newmv)
+                    })
+                    // console.log(this.movies)
+                })
+                .catch(error => console.log(error))
+                
             }
+            // countrecommend: function() {
+                
+            // }
+        },
+        mounted: function() {
+            this.getMovies()
         }
     })
-
+    
+        
+    // const star = document.querySelector('.star-input')
+    // star.addEventListener('click', function(event) {
+    //     event.preventDefault()
+    //     console.log(event)
+    //     const movieId = event.target.dataset.movieid
+    //     const scores = document.querySelectorAll(`#star-${movieId}`)
+    //     const url = `/movies/${movie.id}/createscore/`
+        
+    //     console.log(event.target.innerText)
+    //     console.log(url)
+    //     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+    //     axios.defaults.xsrfCookieName="csrftoken"
+    //     axios.defaults.xsrfHeaderName="X-CSRFToken"
+        
+    //     axios.post(url)
+    //     .then(response => {
+    //         console.log(response)
+    //     })
+    //     .catch(error => console.log(error))
+                
+    // })
     
 </script>
+    
+    
 {% endblock %}
+

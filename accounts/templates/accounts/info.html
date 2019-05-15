@@ -20,7 +20,7 @@
         <h2>{{ user.username }}님이 좋아하는 영화~ </h2>
         {% if leng_movie %}
             {% for movie in user.like_movies.all %}
-                {{ movie.name }}
+                <p>{{ movie.title }}</p>
             {% endfor %}
         {% else %}
             <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'accounts:evaluate' %}'">좋아하는 영화 찾으러 가기?!!!</button>

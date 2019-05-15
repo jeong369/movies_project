@@ -1,12 +1,113 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block css %}
+<style>
+    body {
+        height: 10000px;
+    }
+    
+    /*.star-input>.input>input:checked+label{display: inline-block;vertical-align:middle;background:url('{% static 'img/grade_img.png' %}')no-repeat;}*/
+    
+</style>
+{% endblock %}
 
 {% block body %}
-{{ movie.title }}
-{{ movie.summary }}
+<div id="app" class="movie_detail mx-auto my-3" style="width:80%" data-id="{{movie.pk}}">
+    <h1 class="text-center my-3" >{{ movie.title }}</h1>
+    <div class="row">
+        
+    
+    <div class="col-6">
+        <img class="d-inline my-2" src="{{movie.imageurl}}" style="width:500px; height:500px;">
+    </div>
+    <div class="d-inline my-2 col-6" style="width:500px; height:500px;">
+        <p>평점 남기기!</p>
+        <star-rating id="movie.pk" :key="movie.id" @rating-selected="setRating(movie, movie.rating)" v-model="movie.rating"
+                v-bind:increment="1"
+                v-bind:max-rating="5"
+                v-bind:star-size="30">
+        </star-rating>
+        {% if movie.en_title %}
+            <p>{{ movie.en_title }}</p>
+        {% endif %}
+        <p>감독 : {{ movie.director }}</p>
+        {% for actor in movie.actors.all %}
+            <p>배우 : {{ actor }}</p>
+        {% endfor %}
+        <p>{{ movie.summary }}</p>
+    </div>
+    </div>
 
-<form action="{% url 'movies:createscore' movie.pk %}" method="POST">
-    {% csrf_token %}
-    {{ score_form|crispy }}
-    <input type="submit" value="평점주기">
-</form>
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+<script src="https://unpkg.com/vue-star-rating/dist/star-rating.min.js"></script>
+<script>
+    Vue.component('star-rating', VueStarRating.default);
+    const app = new Vue({
+        el: "#app",
+        delimiters: ['$[{', '}]'],
+        data:{
+            movie: '',
+        },
+        methods: {
+            getMovies: function() {
+                // console.log(this)
+                var link = document.location.href;
+                // console.log(link)
+                // links = link.split('/')
+                // id = links.slice(-2, -1)
+                // const movieId = document.querySelector('#app')
+                // console.log(movieId)
+                
+                const url = link + `detail_star/`
+                // urlssssss = url
+                console.log(url)
+                
+                axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+                axios.defaults.xsrfCookieName="csrftoken"
+                axios.defaults.xsrfHeaderName="X-CSRFToken"
+                axios.post(url)
+                .then(response => {
+                    console.log(response.data)
+                    this.movie = response.data
+                    this.movie.rating = response.data.score
+                    console.log(this.movie)
+                })
+                .catch(error => console.log(error))
+                
+            },
+            setRating: function(movie, rating){
+                console.log("movie", rating)
+                // console.log(movie.id)
+                const url = `/movies/${movie.id}/createscore/`
+                console.log(url)
+                
+                axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+                axios.defaults.xsrfCookieName="csrftoken"
+                axios.defaults.xsrfHeaderName="X-CSRFToken"
+                axios.post(url, {
+                    grade: rating
+                })
+                .then(response => {
+                    console.log(response)
+                    movie = response.data
+   
+                })
+                .catch(error => console.log(error))
+            }
+        },
+        mounted: function() {
+            this.getMovies()
+        }
+    })
+    
+        
+    
+</script>
+
 {% endblock %}

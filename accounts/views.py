@@ -7,6 +7,11 @@ from .forms import UserCustomCreationForm
 from .models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods, require_POST
+from django.http import JsonResponse, HttpResponseBadRequest
+
+from rest_framework.decorators import api_view
+from movies.serializers import MovieSerializer
+from rest_framework.response import Response
 
 from movies.models import Movie, Genre
 
@@ -52,14 +57,48 @@ def info(request, user_pk):
     context = {'user':user, 'leng_genre':leng_genre, 'leng_movie':leng_movie}
     return render(request, 'accounts/info.html', context)
 
+# 평가 페이지
 @login_required
 def evaluate(request):
     genres = Genre.objects.all()
     movies = Movie.objects.order_by('?')[:30]
     userlists = get_user_model().objects.all()
-    context = {'movies':movies, 'genres': genres, 'userlists':userlists}
-    print(movies)
+    context = {'movies': movies, 'genres': genres, 'userlists':userlists}
+    # print(movies)
     return render(request, 'accounts/evaluate.html', context)
+
+
+
+# Create your views here.
+
+# @api_view(['GET'])
+# def music_list(request):
+#     '''음악 정보 출력'''
+#     musics = Music.objects.all()
+#     serializer = MusicSerializer(musics, many=True)
+#     return Response(serializer.data)
+    
+
+# 평점 영화 목록
+@api_view(['POST'])
+@login_required
+def evaluate_movies(request):
+    if request.is_ajax():
+        start_movie = request.user.score_set.all()
+        my_results = Movie.objects.all()
+        for tmpmovie in start_movie:
+            my_results = my_results.exclude(id=tmpmovie.movie.id)
+        print("my_result", my_results.count())
+        print('start_movie', start_movie.count())
+        movies = my_results.order_by('?')[:30]
+        serializer = MovieSerializer(movies, many=True)
+        data = serializer.data
+        data.insert(0, [{'like_count': start_movie.count()}])
+        # print(data)
+        return Response(data)
+    else:
+        return HttpResponseBadRequest
+
     
 @login_required
 def follow(request, user_pk):

@@ -36,9 +36,9 @@ def list(request):
     before = today - d
     new_movies = Movie.objects.filter(open_date__range=[str(before.strftime("%Y-%m-%d")), str(today.strftime("%Y-%m-%d"))]).order_by('?')[:12]
     # print(new_movies)
-    genre_movies = {}
     if request.user.is_authenticated:
         genres = request.user.like_genres.order_by('?')[:3]
+        genre_movies = {}
         for genre in genres:
             # print(genre)
             # print(genre.movies.all().order_by('?')[:6])
@@ -70,28 +70,16 @@ def list(request):
 
 def detail(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
-    context = {'movie':movie}
+    se
     return render(request, 'movies/detail.html', context)
         
-
-@api_view(['POST'])
+        
 def detail_star(request, movie_pk):
     if request.is_ajax():
+        p
         movie = get_object_or_404(Movie, pk=movie_pk)
-        score = Score.objects.filter(movie=movie, user=request.user)
-        if score:
-            # print(score)
-            score = score[0].grade
-        else:
-            score = 0
-        # print(score)
         serializer = MovieSerializer(movie)
-        movie_data = serializer.data
-        # print(movie_data)
-        movie_data.update({'score': score})
-        # print(movie_data)
-        # print(serializer.data)
-        return Response(movie_data)
+        return Response(serializer.data)
     else:
         return HttpResponseBadRequest
     
@@ -102,9 +90,10 @@ def like_movie(request, movie_pk):
         movie = get_object_or_404(Movie, pk=movie_pk)
         user = request.user
         # user가 지금 해당 게시글에 좋아요를 한 적이 있는지?
-        # print(movie.like_users)
+        print(movie.like_users)
         if movie.like_users.filter(pk=user.id).exists():
             movie.like_users.remove(user)
+
         else:
             movie.like_users.add(user)
 
@@ -113,39 +102,25 @@ def like_movie(request, movie_pk):
         return JsonResponse({})
     else:
         return HttpResponseBadRequest
+    
 
 
-#  J      B
-# GOT TA KI (GTK)
-     
- 
-
-# 별점 생성
 @api_view(['POST'])
 def createscore(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
-    current_movie = MovieSerializer(movie).data
-    # print(current_movie)
     serializer = ScoreSerializer(data=request.data)
-    # print(request.data)
-    # print(serializer)
+    print(request.data)
+    print(serializer)
     if request.user in movie.score_users.all():
-        # print("dsaghowijfoaiaifiowaeifej")
-        # print(request)
-        score = Score.objects.filter(user=request.user, movie=movie)[0]
-        # print(request.data)
+        score = Score.objects.get(user=request.user)
         score.grade = request.data['grade']
-        # print(score)
-        score.save()
-        current_movie.update({'is_update': True})
-        return Response(current_movie)
+        
     else:
         if serializer.is_valid(raise_exception=True):
             tmp = serializer.save(movie=movie, user=request.user)
-            # print("hi")
-            # print(tmp)
-            current_movie.update({'is_update': False})
-            return Response(current_movie)
+            print("hi")
+            print(tmp)
+            return Response(MovieSerializer(movie).data)
             # if request.method == "POST":
             #     score_form = ScoreForm(request.POST)
             #     if score_form.is_valid():

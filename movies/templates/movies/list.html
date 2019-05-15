@@ -1,9 +1,52 @@
 {% extends 'base.html' %}
 
 
+
 {% block body %}
-<!--<h1>{{ user }}</h1>-->
+
+<div id="app" class="mx-auto my-3" style="width: 90%">
+    
+    
+    <h2>요즘 최신 영화!</h2>
+    <div class="row my-3">
+        {% for movie in new_movies %}
+        <div class="col-2 my-3">
+        <a href="/movies/{{movie.pk}}/"><img src="{{ movie.imageurl }}" ></a><br>
+        {{ movie.title }}
+        
+        </div>
+        {% endfor %}
+    </div>
+    
 {% if user.is_authenticated %}
+    {% for genre, value in genre_movies.items %} 
+        <h2>{{ user }}님이 선호하시는 <strong>{{ genre }}</strong> 장르의 영화입니다!</h2>
+        <div class="row my-3">
+            <!--<li>{{key}} - {{value}}</li>-->
+            {% for movie in value %}
+            
+            <div class="col-5 col-md-4 col-lg-3 col-xl-2 my-3">
+            <a href="/movies/{{movie.pk}}/"><img src="{{ movie.imageurl }}"></a><br>
+            {{ movie.title }}
+            </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    {% for hashtag in hashtags %}
+        <h2>{{ hashtag.content }}영화 모아보기!</h2>
+        <div class="row my-3">
+        {% for movie in hashtag.movies.all %}
+            <div class="col-5 col-md-4 col-lg-3 col-xl-2 my-3">
+                <a href="/movies/{{movie.pk}}/"><img src="{{ movie.imageurl }}"></a><br>
+                    {{ movie.title }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    
+
+
     {% for movie in movies %}
         {{ movie.id }}
         <a href="{% url 'movies:createscore' movie.pk %}">{{ movie.title }}</a>
@@ -16,5 +59,29 @@
 {% else %}
     <h1>로그인/회원가입 을 하시면 영화 추천을 받을 수 있어요!</h1>
 {% endif %}
+
+
+</div>
+
 {% endblock %}
 
+{% block script %}
+<script>
+    const app = new Vue ({
+    //     el : '#app',
+    //     data : {},
+    //     methods: {
+    //         clickimage: function(movieid) {
+    //             const url = `/movies/${movieid}`
+    //             axios.get(url)
+    //             .then(response => {
+    //                 console.log(response)
+    //             })
+    //         }
+    //     }
+    // })
+    
+    
+</script>
+
+{% endblock %}
