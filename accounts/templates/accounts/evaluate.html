@@ -50,11 +50,17 @@
       background-color: #ffffff;
       border-color: #ffffff;
     }
-
     
+    #scrolldown {
+        color: pink;
+    }
+    #scrolldown:hover { 
+      color: deeppink;
+    }
     
     .star-input>.input>input:checked+label{display: inline-block;vertical-align:middle;background:url('{% static 'img/grade_img.png' %}')no-repeat;}
-
+    
+    
 
 
 
@@ -150,7 +156,7 @@
         </div>
         {% endfor %}
     </div>-->
-    <div><i @click="addMovies" class="d-flex justify-content-center fas fa-chevron-circle-down fa-3x"></i></div>
+    <div @click="addMovies"><i id="scrolldown" class="d-flex justify-content-center fas fa-chevron-circle-down fa-3x" ></i></div>
 
 </div>
 
@@ -210,7 +216,7 @@
             },
             setRating: function(movie, rating){
                 console.log("movie", rating)
-                // console.log(movie.id)
+                console.log(movie)
                 const url = `/movies/${movie.id}/createscore/`
                 console.log(url)
                 

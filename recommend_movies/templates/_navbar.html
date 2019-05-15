@@ -3,14 +3,15 @@
         li > a:link { color: #ff4d88; text-decoration: none;}
         li > a:visited { color: #ff4d88; text-decoration: none;}
         li > a:hover { color: #ff4d88; text-decoration: underline;}
-    
+        
+
     </style>
 </head>
 
 
 <nav class="navbar navbar-expand-lg" style="font-weight: bold">
       <!--<a class="navbar-brand" href="#">home!</a>-->
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="true" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon" style="color: pink">dd</span>
       </button>
     
@@ -19,16 +20,51 @@
           <li class="nav-item active mx-2">
             <a class="nav-link" href="{% url 'movies:list' %}">Home <span class="sr-only">(current)</span></a>
           </li>
+          
+          <!--<div class="btn-group dropright">-->
+          <!--       <button type="button" id="data-rightdown" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+          <!--        장르별-->
+          <!--      </button>-->
+          <!--      <div class="dropdown-menu" area-labelledby="data-rightdown" x-placement="right-start" style="position: absolute; transform: translate3d(111px, 0px, 0px); top: 0px; left: 0px; will-change: transform;">-->
+          <!--        <a class="dropdown-item" href="#">Action</a>-->
+          <!--        <a class="dropdown-item" href="#">Another action</a>-->
+          <!--      </div>-->
+          <!--    </div>-->
+
+
+
           <li class="nav-item dropdown mx-2">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
               카테고리
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
+              <a class="dropdown-item" href="#" style="background-color:pink;">장르별</a>
+                
+                {% for genre in genrelists %}
+                    <div class="fieldWrapper mx-auto" >
+                        {{ genre.errors }}
+                        <!--{{ field.label_tag }}--> <a class="dropdown-item" style="text-color:pink;" href="{% url 'movies:genre_detail' genre.pk %}" role=button >{{ genre.name }}</a>
+                        {% if genre.name.help_text %}
+                        <p class="help">{{ genre.help_text|safe }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                
+              <a class="dropdown-item" href="#" style="background-color:pink;">해시태그별</a>
+                    
+                {% for hashtag in hashtags %}
+                    <div class="fieldWrapper mx-auto" >
+                        {{ hashtag.errors }}
+                        <!--{{ field.label_tag }}--> <a class="dropdown-item" style="text-color:pink;" href="/movies/#hashtag{{hashtag.pk}}" role=button >{{ hashtag.content }}</a>
+                        {% if hashtag.help_text %}
+                        <p class="help">{{ hashtag.help_text|safe }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+              
+
           </li>
           <li class="nav-item active mx-2">
             <a class="nav-link" href="{% url 'accounts:evaluate' %}">평가하기 <span class="sr-only">(current)</span></a>
@@ -42,7 +78,7 @@
             </form>
           </li>
           <li class="nav-item active mx-2">
-            <a class="nav-link" href="#"> 보고싶어요! <span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="{% url 'accounts:info' user.pk %}"> 보고싶어요! <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item dropdown mx-2">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

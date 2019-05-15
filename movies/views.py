@@ -1,4 +1,5 @@
 import datetime
+import pprint
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import get_user_model
@@ -17,6 +18,9 @@ from rest_framework.response import Response
 from .models import Movie, Genre, Hashtag, Score
 from .forms import ScoreForm
 
+from Collaborative_Filtering.filtering import getRecommendation, top_match
+
+
 # Create your views here.
 # 영화 목록(맨처음 보여지는 곳)
 # def list(request):
@@ -27,7 +31,9 @@ from .forms import ScoreForm
 @require_http_methods(['GET', 'POST'])
 def list(request):
     # 해시태그별
-    hashtags = Hashtag.objects.all()
+    hashtags = Hashtag.objects.all().prefetch_related('movies')
+    # all genre
+    genrelists = Genre.objects.all()
     # 영화정보
     genres = []
     movies = []
@@ -38,7 +44,7 @@ def list(request):
     # print(new_movies)
     genre_movies = {}
     if request.user.is_authenticated:
-        genres = request.user.like_genres.order_by('?')[:3]
+        genres = request.user.like_genres.prefetch_related('movies').order_by('?')[:3]
         for genre in genres:
             # print(genre)
             # print(genre.movies.all().order_by('?')[:6])
@@ -62,15 +68,26 @@ def list(request):
     signup_form = UserCustomCreationForm()
     context = {'movies':movies, 'genres': genres, 'login_form':user_form, 'signup_form': signup_form, 
                 'userlists':userlists, 'genre_movies': genre_movies, 'new_movies': new_movies, 
-                'hashtags': hashtags
+                'hashtags': hashtags, 'genrelists':genrelists,
     }
     
     return render(request, 'movies/list.html', context)
     
+# 장르 디테일 페이지
+def genre_detail(request, genre_pk):
+    genre = get_object_or_404(Genre, pk=genre_pk)
+    context = {'genre':genre}
+    return render(request, 'movies/genre_detail.html', context)
 
+
+# 영화 디테일 페이지
 def detail(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
-    context = {'movie':movie}
+        # 해시태그별
+    hashtags = Hashtag.objects.all()
+    # all genre
+    genrelists = Genre.objects.all()
+    context = {'movie':movie, 'hashtags': hashtags, 'genrelists':genrelists,}
     return render(request, 'movies/detail.html', context)
         
 
@@ -180,3 +197,53 @@ def like_genres(request, genre_pk):
     else:
         return HttpResponseBadRequest
 
+
+
+'''
+
+def evaluate_movies(request):
+    if request.is_ajax():
+        start_movie = request.user.score_set.all()
+        my_results = Movie.objects.all()
+        for tmpmovie in start_movie:
+            my_results = my_results.exclude(id=tmpmovie.movie.id)
+        print("my_result", my_results.count())
+        print('start_movie', start_movie.count())
+        movies = my_results.order_by('?')[:30]
+        serializer = MovieSerializer(movies, many=True)
+        data = serializer.data
+        data.insert(0, [{'like_count': start_movie.count()}])
+        # print(data)
+        return Response(data)
+    else:
+        return HttpResponseBadRequest
+'''
+
+
+@api_view(['POST'])
+@login_required
+def recommend_movies(request):
+    if request.is_ajax():
+        scores = Score.objects.all()
+        critics = {}
+        for score in scores:
+            check = critics.get(score.user_id, None)
+            if not check:
+                critics[score.user_id] = {score.movie_id: score.grade}
+            else:
+                critics[score.user_id].update({score.movie_id: score.grade})
+            
+        recommend_list = getRecommendation(critics, request.user.pk)
+        movies = []
+        for i in range(10):
+            recommendation = recommend_list[i]
+            current_movie = Movie.objects.get(pk=recommendation[1])
+            # print("%0.1f" % recommendation[0])
+            current_movie.expected_score = float("%0.1f" % recommendation[0])
+            # print(current_movie.expected_score)
+            movies.append(current_movie)
+        data = []
+        serializer = MovieSerializer(movies, many=True)
+        return Response(serializer.data)
+    else:
+        return HttpResponseBadRequest

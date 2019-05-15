@@ -100,13 +100,19 @@ def evaluate_movies(request):
         return HttpResponseBadRequest
 
     
-@login_required
+
+@api_view(['POST'])
 def follow(request, user_pk):
     User = get_user_model()
-    follow_user = User.objects.get(pk=user_pk)
-    if request.user not in follow_user.followers.all() :
-        follow_user.followers.add(request.user)
+    if request.is_ajax():
+        follow_user = get_object_or_404(User, pk=user_pk)
+        if request.user not in follow_user.followers.all() :
+            follow_user.followers.add(request.user)
+            is_follow = False
+        else:
+            follow_user.followers.remove(request.user)
+            is_follow = True
+        return JsonResponse({'is_follow':is_follow})
     else:
-        follow_user.followers.remove(request.user)
-    return redirect('movies:list')
+        return HttpResponseBadRequest
     

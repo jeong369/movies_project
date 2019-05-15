@@ -36,3 +36,6 @@ class Score(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     grade = models.IntegerField()
     
+    def __str__(self):
+        return f"{self.user} : {self.movie.title} - {self.grade}"
+    
