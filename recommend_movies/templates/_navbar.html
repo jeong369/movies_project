@@ -9,7 +9,7 @@
 </head>
 
 
-<nav class="navbar navbar-expand-lg" style="font-weight: bold">
+<nav class="navbar sticky-top navbar-expand-lg bg-white" style="font-weight: bold">
       <!--<a class="navbar-brand" href="#">home!</a>-->
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="true" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon" style="color: pink">dd</span>
@@ -72,30 +72,27 @@
         <!--</ul>-->
         <!--<ul class="navbar-nav ml-auto">-->
           <li class="nav-item active mx-2">
-            <form class="form-inline">
-              <input class="form-control mr-2" style="width: 300px;" type="search" placeholder="보고싶은 영화를 찾아보세요!" aria-label="Search">
+            <form action="{% url 'movies:search' %}" class="form-inline">
+              <input name="q" class="form-control mr-2" style="width: 300px;" type="search" placeholder="보고싶은 영화를 찾아보세요!" aria-label="Search">
               <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">GoGo</button>
             </form>
           </li>
           <li class="nav-item active mx-2">
+            {% if user.is_authenticated %}
             <a class="nav-link" href="{% url 'accounts:info' user.pk %}"> 보고싶어요! <span class="sr-only">(current)</span></a>
+            {% endif %}
           </li>
           <li class="nav-item dropdown mx-2">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               {{ user }}
             </a>
+              {% if user.is_authenticated %}
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#"></a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Something else here</a>
+                <a class="dropdown-item" href="{% url 'accounts:logout' %}">logout</a>
+                <a class="dropdown-item" href="{% url 'accounts:userdelete' %}">탈퇴하기</a>
+              {% endif %}
             </div>
           </li>
         </ul>
-        <!--<form class="form-inline my-2 my-lg-0">-->
-        <!--  <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">-->
-        <!--  <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
-        <!--</form>-->
-      </div>
     </nav>
     

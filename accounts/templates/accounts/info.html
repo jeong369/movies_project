@@ -1,29 +1,51 @@
 {% extends 'base.html' %}
 {% block css %}
 <style>
+.button_custom_info {
+    background-color: white;
+    border: 1px solid pink;
+}
 </style>
 {% endblock %}
 {% block body %}
 <div class="userinfo mx-auto mt-3" style="width: 80%">
-    <div class="likegenre">
-        <h2>{{ user.username }}님이 좋아하는 장르~</h2>
+    <div class="likegenre my-3">
+        <h2>{{ user.username }}님이 좋아하는 장르</h2>
+        <div class="row">
+            {% if leng_genre %}
+                {% for genre in user.like_genres.all %}
+                <div class="col-3 my-2">
+                    <label>{{genre.name}}</label>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+        </div>
         {% if leng_genre %}
-            {% for genre in user.like_genres.all %}
-                {{ genre.name }}
-            {% endfor %}
+            <button type="button" class="btn button_custom_info" onclick="window.location.href='{% url 'accounts:evaluate' %}'">좋아하는 장르 수정하러 가기?!!!</button>
         {% else %}
-            <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'accounts:evaluate' %}'">좋아하는 장르 찾으러 가기?!!!</button>
+            <button type="button" class="btn button_custom_info" onclick="window.location.href='{% url 'accounts:evaluate' %}'">좋아하는 장르 찾으러 가기?!!!</button>
         {% endif %}
+        
     </div>
     
-    <div class="likemovies">
-        <h2>{{ user.username }}님이 좋아하는 영화~ </h2>
+    <div class="likemovies my-5">
+        <h2>{{ user.username }}님이 보고싶어 하는 영화~ </h2>
+        <div class="row">
+            {% if leng_movie %}
+                {% for movie in user.like_movies.all %}
+                <div class="col-5 col-md-4 col-lg-3 col-xl-2 my-3">
+                    <a href="/movies/{{movie.pk}}/"><img src="{{ movie.imageurl }}"></a><br>
+                    {{ movie.title }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+        </div>
         {% if leng_movie %}
-            {% for movie in user.like_movies.all %}
-                <p>{{ movie.title }}</p>
-            {% endfor %}
+            <button type="button" class="btn button_custom_info" onclick="window.location.href='{% url 'accounts:evaluate' %}'">보고싶은 영화 수정하러 가기?!!!</button>
         {% else %}
-            <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'accounts:evaluate' %}'">좋아하는 영화 찾으러 가기?!!!</button>
+            <button type="button" class="btn button_custom_info" onclick="window.location.href='{% url 'accounts:evaluate' %}'">보고싶은 영화 찾으러 가기?!!!</button>
         {% endif %}
     </div>
     

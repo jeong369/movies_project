@@ -38,4 +38,6 @@ class Score(models.Model):
     
     def __str__(self):
         return f"{self.user} : {self.movie.title} - {self.grade}"
+        
+
     

@@ -72,25 +72,28 @@ def list(request):
     }
     
     return render(request, 'movies/list.html', context)
-    
+
+
+
 # 장르 디테일 페이지
 def genre_detail(request, genre_pk):
+    hashtags = Hashtag.objects.all().prefetch_related('movies')
+    genrelists = Genre.objects.all()
     genre = get_object_or_404(Genre, pk=genre_pk)
-    context = {'genre':genre}
+    context = {'genre':genre, 'hashtags': hashtags, 'genrelists': genrelists}
     return render(request, 'movies/genre_detail.html', context)
 
 
 # 영화 디테일 페이지
 def detail(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
-        # 해시태그별
     hashtags = Hashtag.objects.all()
-    # all genre
     genrelists = Genre.objects.all()
     context = {'movie':movie, 'hashtags': hashtags, 'genrelists':genrelists,}
     return render(request, 'movies/detail.html', context)
         
 
+# 디테일에서 별점
 @api_view(['POST'])
 def detail_star(request, movie_pk):
     if request.is_ajax():
@@ -101,6 +104,10 @@ def detail_star(request, movie_pk):
             score = score[0].grade
         else:
             score = 0
+        if request.user in movie.like_users.all():
+            movie.is_like = True
+        else:
+            movie.is_like = False
         # print(score)
         serializer = MovieSerializer(movie)
         movie_data = serializer.data
@@ -220,6 +227,7 @@ def evaluate_movies(request):
 '''
 
 
+# 영화 추천 알고리즘
 @api_view(['POST'])
 @login_required
 def recommend_movies(request):
@@ -247,3 +255,17 @@ def recommend_movies(request):
         return Response(serializer.data)
     else:
         return HttpResponseBadRequest
+
+
+# 검색기능       
+def search(request):
+    # 1. 내가 만들어놓은 모델
+    # 2. variable routing => 현재 존재하지 않음
+    # 3. form => 존재
+    hashtags = Hashtag.objects.all()
+    genrelists = Genre.objects.all()
+    movie_title = request.GET.get('q')
+    movies = Movie.objects.filter(title__contains=movie_title)
+    # first를 쓰지 않으면 쿼리셋이 나오기 때문에 first로 첫번째를 찍어준다.
+    context = {'movies': movies, 'q': movie_title, 'hashtags': hashtags, 'genrelists':genrelists,}
+    return render(request, 'movies/search_result.html', context)

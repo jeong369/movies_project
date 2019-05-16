@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block css %}
+{% endblock %}
+
+{% block body %}
+    <div id="app3">
+        <div class="recommend mx-auto my-3" style="width: 90%">
+            <h2>다른 친구들의 영화를 구경하세요! </h2>
+            <div v-for="anyuser in someusers">
+                <div>
+                    <h2><span v-text="anyuser.username"></span>님이 선호하는 영화입니다!</h2>
+                    <!--<p>* follow하고 더 많은 영화를 추천받아보세요.</p>-->
+
+                    <!--        <p v-text="anyuser.is_follow"></p>-->
+                    <!--    <div v-if="anyuser.is_follow === true">-->
+                    <!--        <button data-id="anyuser.pk" @click="findFollows(anyuser)" class="btn btn-danger follow-button">Unfollow!</button>-->
+                    <!--    </div>-->
+
+                    <!--    <div v-else>-->
+                    <!--        <button data-id="anyuser.pk" @click="findFollows(anyuser)" class="btn btn-success follow-button">Follow!</button> -->
+                            
+                    <!--    </div>-->
+
+                </div>
+                    <div class="row my-3">
+                        <div v-for="movie in anyuser.recommend_movies" class="col-5 col-md-4 col-lg-3 col-xl-2 my-3">
+                        <a :href="`/movies/${movie.id}/`"><img :src=" movie.imageurl"></a><br>
+                        <p v-text="movie.title"></p>
+                        </div>
+                        
+                    </div>
+            </div>
+        </div>
+    </div>
+    
+    
+
+
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        const app3 = new Vue ({
+            el : "#app3",
+            delimiters: ['$[{', '}]'],
+            data : {
+                recommend_movies : [],
+                someusers: [],
+                movies: [],
+                is_follow:false,
+            },
+            methods : {
+                userlists: function() {
+                    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+                    axios.defaults.xsrfCookieName="csrftoken"
+                    axios.defaults.xsrfHeaderName="X-CSRFToken"
+                    
+                    axios.post(`/accounts/findfollow/`)
+                    .then(response => {
+                        // console.log(response.data)
+                        tmp = response.data
+                        this.someusers = response.data
+                        // const someusers = response.data
+                        // // console.log(someusers)
+                        // someusers.forEach(user => {
+                        //     console.log(user)
+                        //     console.log(user.recommend_movies)
+                        //     const setmovies = user.recommend_movies.slice(0,5)
+                        //     console.log(setmovies)
+                        //     setmovies.forEach(movie => {
+                        //         console.log(movie)
+                        //     })
+                        // })
+                        // console.log(this.movies)
+                        // this.someusers.push(response.data.someusers)
+                    })
+                    .catch(error => console.log(error))
+                },
+                findFollows: function(user) {
+                    console.log(user)
+                    const userId = user.id
+                    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+                    axios.defaults.xsrfCookieName="csrftoken"
+                    axios.defaults.xsrfHeaderName="X-CSRFToken"
+                    
+                    axios.post(`/accounts/${userId}/follow/`)
+                    .then(response => {
+                        console.log(response.data)
+                        // console.log(response.data.is_follow)
+                        // console.log(this.is_follow)
+                        this.is_follow = response.data.is_follow
+                        // console.log(this.is_follow)
+                        
+     
+                        user.is_follow = !user.is_follow
+                        // console.log(user.is_follow)
+                        this.is_follow = user.is_follow
+                        console.log(this.is_follow)
+                        const btn = document.querySelector('.follow-button')
+                        console.log(btn)
+                        if (response.data.is_follow) {
+                            
+                    } else {
+                        
+                    }
+                    })
+                    .catch(error => console.log(error))
+                },
+            },
+            mounted : function() {
+                    this.userlists()
+            }
+        })
+    </script>
+{% endblock %}
+

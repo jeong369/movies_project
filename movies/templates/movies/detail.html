@@ -4,7 +4,7 @@
 {% block css %}
 <style>
     body {
-        height: 10000px;
+        height: 2000px;
     }
     
     /*.star-input>.input>input:checked+label{display: inline-block;vertical-align:middle;background:url('{% static 'img/grade_img.png' %}')no-repeat;}*/
@@ -13,30 +13,36 @@
 {% endblock %}
 
 {% block body %}
-<div id="app" class="movie_detail mx-auto my-3" style="width:80%" data-id="{{movie.pk}}">
-    <h1 class="text-center my-3" >{{ movie.title }}</h1>
+<div id="detailApp" class="movie_detail mx-auto my-3" style="width:80%" data-id="{{movie.pk}}">
+    <h1 class="text-center my-3">{{ movie.title }}
+        <i @click="likeMovies(movie)" 
+            dataid="{{ movie.pk }}" 
+            :class="{fas: movie.is_like, far: !movie.is_like, 'fa-heart': true, 'like-movie-button': true}"
+            style="color:red;">
+        </i>
+    </h1>
+    
     <div class="row">
         
-    
-    <div class="col-6">
-        <img class="d-inline my-2" src="{{movie.imageurl}}" style="width:500px; height:500px;">
-    </div>
-    <div class="d-inline my-2 col-6" style="width:500px; height:500px;">
-        <p>평점 남기기!</p>
-        <star-rating id="movie.pk" :key="movie.id" @rating-selected="setRating(movie, movie.rating)" v-model="movie.rating"
-                v-bind:increment="1"
-                v-bind:max-rating="5"
-                v-bind:star-size="30">
-        </star-rating>
-        {% if movie.en_title %}
-            <p>{{ movie.en_title }}</p>
-        {% endif %}
-        <p>감독 : {{ movie.director }}</p>
-        {% for actor in movie.actors.all %}
-            <p>배우 : {{ actor }}</p>
-        {% endfor %}
-        <p>{{ movie.summary }}</p>
-    </div>
+        <div class="col-4">
+            <img class="d-inline my-2" src="{{movie.imageurl}}" style="width:100%;">
+        </div>
+        <div class="d-inline my-2 col-8" style="width:100%;">
+            <p>평점 남기기!</p>
+            <star-rating id="movie.pk" :key="movie.id" @rating-selected="setRating(movie, movie.rating)" v-model="movie.rating"
+                    v-bind:increment="1"
+                    v-bind:max-rating="5"
+                    v-bind:star-size="30">
+            </star-rating>
+            {% if movie.en_title %}
+                <p>{{ movie.en_title }}</p>
+            {% endif %}
+            <p>감독 : {{ movie.director }}</p>
+            {% for actor in movie.actors.all %}
+                <p>배우 : {{ actor }}</p>
+            {% endfor %}
+            <p>{{ movie.summary }}</p>
+        </div>
     </div>
 
 </div>
@@ -48,8 +54,8 @@
 <script src="https://unpkg.com/vue-star-rating/dist/star-rating.min.js"></script>
 <script>
     Vue.component('star-rating', VueStarRating.default);
-    const app = new Vue({
-        el: "#app",
+    const detailApp = new Vue({
+        el: "#detailApp",
         delimiters: ['$[{', '}]'],
         data:{
             movie: '',
@@ -99,7 +105,19 @@
    
                 })
                 .catch(error => console.log(error))
-            }
+            },
+            likeMovies: function(movie) {
+                axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+                axios.defaults.xsrfCookieName="csrftoken"
+                axios.defaults.xsrfHeaderName="X-CSRFToken"
+                
+                axios.post(`/movies/${movie.id}/like/`)
+                .then(response => {
+                    console.log(response)
+                    movie.is_like = !movie.is_like
+                })
+                .catch(error => console.log(error))
+            },
         },
         mounted: function() {
             this.getMovies()

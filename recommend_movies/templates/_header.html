@@ -31,6 +31,10 @@
             background-color: white;
             opacity: 0.7;
         }
+        .findfollow {
+            background-color: white;
+            background-color: rgba( 255, 255, 255, 0.5 );
+        }
     </style>
 </head>
 <body>
@@ -41,27 +45,10 @@
         <header_img style="background-image: url('{% static 't1.jpg' %}'); width: 600px; height: 280px; margin-top: 60px; "></header_img>
         
         <div class="btn-group mt-3">
-          <button type="button" class="btn dropdown-toggle" style="color:white;" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false">
+          <button type="submit" class="findfollow" onclick="window.location.href='{% url 'accounts:findfollow' %}'">
               친구를 등록하세요~
           </button>
-          <div class="dropdown-menu dropdown-menu-right" style="width:100%">
-            {% for anyuser in userlists %}
-                {% if user_info != user %}
-                <div class="fieldWrapper mx-auto" >
-                    {{ anyuser.errors }}
-                    <span>{{ anyuser.username }}</span>
-                    {% if anyuser in user.followers.all %}
-                        <button type="button" data-id="{{ anyuser.pk }}" class="btn btn-danger follow-button">Unfollow!</button>
-                    {% else %}
-                        <button type="button" data-id="{{ anyuser.pk }}" class="btn btn-success follow-button">Follow!</button> 
-                    {% endif %}
-                    {% if anyuser.help_text %}
-                    <p class="help">{{ anyuser.help_text|safe }}</p>
-                    {% endif %}
-                </div>
-                {% endif %}
-            {% endfor %}
-          </div>
+          
         </div>
         
         <!--<sidebar class="" style="width: 200px; height: 300px; margin-top: 60px">-->
@@ -139,35 +126,3 @@
 
 </body>
 
-{% block scrpit %}
-    <script>
-        const followButtons = document.querySelectorAll('.follow-button')
-        followButtons.forEach(function(button) {
-            button.addEventListener('click', function(e) {
-                console.log(e.target.dataset)
-                const userId = e.target.dataset.id
-                // is_ajax()를 사용하려면, Django에 XML인걸 확인시켜 줘야 한다. (is_ajax() True를 위한 것)
-                axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
-                // post 요청일 때 쿠키 가져오기
-                axios.defaults.xsrfCookieName = 'csrftoken'
-                axios.defaults.xsrfHeaderName = 'X-CSRFToken'  
-                // Django에서 csrf token을 Header에 담을 때 X-CSRFToken으로 보내라고 설정되어 있다.
-                
-                axios.post(`/accounts/${userId}/follow/`)
-                .then(function(response) {
-                    console.log(button.innerText)
-                    if (response.data.is_follow) {
-                        e.target.classList.remove('btn-success')
-                        e.target.classList.add('btn-danger')
-                        e.target.innerText = "Unfollow!"
-                    } else {
-                        e.target.classList.remove('btn-danger')
-                        e.target.classList.add('btn-success')
-                        e.target.innerText = "Follow!"
-                    }
-                })
-            })
-            
-        })
-    </script>
-{% endblock %}
