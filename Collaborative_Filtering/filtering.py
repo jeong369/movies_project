@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 # correlation analysis(상관분석)
 from math import sqrt
-from matplotlib import font_manager, rc #한글이 나오게
+from matplotlib import font_manager, rc
 import matplotlib.pyplot as plt
 # font_name = font_manager.FontProperties(fname="c:/Windows/Fonts/malgun.ttf").get_name()
 # rc('font', family=font_name)
@@ -10,31 +10,6 @@ def hi():
     print('hi')
 
 
-# plt 그리기
-def drawGraph(data, name1, name2):
-    plt.figure(figsize=(14, 8))  # plot 크기설정
-
-    # plot 좌표를 위한 list 선언
-    li = []
-    li2 = []
-
-    for i in critics[name1]:  # i = 키 값
-        if i in data[name2]:  # 같은 영화를 평가했을때만
-            li.append(critics[name1][i])  # name1의 평점 li[]에 추가
-            li2.append(critics[name2][i])  # name2의 평점 li2[]에 추가
-            plt.text(critics[name1][i], critics[name2][i], i)  # 영화 제목 text 찍기
-
-    plt.plot(li, li2, 'ro')  # plot그리기
-
-    # 각 축의 크기 설정 (0에서 6까지)
-    plt.axis([0, 6, 0, 6])
-
-    # x축과 y축 이름 설정
-    plt.xlabel(name1)
-    plt.ylabel(name2)
-
-    # 그리기
-    plt.show()
 
 # 상관계수 구하기(피어슨상관계수)
 def sim_pearson(data, name1, name2):
@@ -100,74 +75,3 @@ def getRecommendation(data, person, sim_function=sim_pearson):
     return li
 
 
-# critics = {
-#     '차현석': {
-#         '그린 북': 2.5,
-#         '어벤져스: 엔드게임': 3.5,
-#         '월-E': 3.0,
-#         '반지의 제왕: 왕의 귀환': 3.5,
-#         '죽은 시인의 사회': 2.5,
-#         '지금, 만나러 갑니다': 3.0,
-#     },
-#     '황해도': {
-#         '에이리언 2': 1.0,
-#         '메리 포핀스': 4.5,
-#         '언터처블: 1%의 우정': 0.5,
-#         '그린 북': 1.5,
-#         '위대한 쇼맨': 4.5,
-#         '어벤져스: 엔드게임': 5.0,
-#     },
-#     '김미희': {
-#         '연평해전': 3.0,
-#         '끝까지 간다': 3.5,
-#         '그린 북': 1.5,
-#         '세 얼간이': 5.0,
-#         '명탐정 코난: 순흑의 악몽': 3.0,
-#         '어벤져스: 엔드게임': 3.5,
-#     },
-#     '김준형': {
-#         '연평해전': 2.5,
-#         '그린 북': 3.0,
-#         '명탐정 코난: 순흑의 악몽': 3.5,
-#         '어벤져스: 엔드게임': 4.0,
-#     },
-#     '이은비': {
-#         '남한산성': 3.5,
-#         '어벤져스: 엔드게임': 3.0,
-#         '그린 북': 4.5,
-#         '사일런트 힐': 4.0,
-#         '아이 캔 스피크': 2.5,
-#     },
-#     '임명진': {
-#         '록키': 3.0,
-#         '어벤져스: 엔드게임': 4.0,
-#         '그린 북': 2.0,
-#         '사일런트 힐': 3.0,
-#         '오펀: 천사의 비밀': 3.5,
-#         '위대한 쇼맨': 2.0,
-#     },
-#     '심수정': {
-#         '그린 북': 3.0,
-#         '어벤져스: 엔드게임': 4.0,
-#         '반지의 제왕: 왕의 귀환': 3.0,
-#         '여고괴담': 5.0,
-#         '지금, 만나러 갑니다': 3.5,
-#     },
-#     '박병관': {'그린 북': 4.5, '월-E': 1.0,
-#              '어벤져스: 엔드게임': 4.0},
-# }
-
-
-
-# drawGraph(critics, '황해도', '임명진')
-# drawGraph(critics, '박병관', '차현석')
-# drawGraph(critics,'심수정','차현석')
-
-# print(sim_pearson(critics,'황해도', '임명진'))
-# print(sim_pearson(critics,'박병관', '차현석'))
-# print(sim_pearson(critics, '심수정', '차현석'))
-
-
-# print(top_match(critics, '박병관', 6))
-
-# print(getRecommendation(critics, '박병관'))

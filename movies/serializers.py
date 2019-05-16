@@ -18,8 +18,9 @@ class ScoreSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     recommend_movies = MovieSerializer(many=True)
+    is_follow = serializers.BooleanField(default=False)
     class Meta:
         model = User
-        fields = ('id', 'username', 'recommend_movies',)
+        fields = ('id', 'username', 'recommend_movies', 'is_follow',)
         
         

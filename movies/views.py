@@ -246,7 +246,7 @@ def recommend_movies(request):
         for i in range(10):
             recommendation = recommend_list[i]
             current_movie = Movie.objects.get(pk=recommendation[1])
-            # print("%0.1f" % recommendation[0])
+            print("%0.1f" % recommendation[0])
             current_movie.expected_score = float("%0.1f" % recommendation[0])
             # print(current_movie.expected_score)
             movies.append(current_movie)

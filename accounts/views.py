@@ -148,7 +148,11 @@ def findfollow(request):
     someusers = users.order_by('?')[:5]
     # allscore = []
     for anyuser in someusers :
-        print(anyuser)
+        # print(anyuser)
+        if anyuser in request.user.followings.all():
+            anyuser.is_follow = True
+        else:
+            anyuser.is_follow = False
         movies = []
         for score in anyuser.score_set.all().order_by('-grade')[:5]:
             tmp_movie = Movie.objects.get(pk=score.movie.pk)

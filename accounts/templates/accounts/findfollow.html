@@ -12,15 +12,14 @@
                     <h2><span v-text="anyuser.username"></span>님이 선호하는 영화입니다!</h2>
                     <!--<p>* follow하고 더 많은 영화를 추천받아보세요.</p>-->
 
-                    <!--        <p v-text="anyuser.is_follow"></p>-->
-                    <!--    <div v-if="anyuser.is_follow === true">-->
-                    <!--        <button data-id="anyuser.pk" @click="findFollows(anyuser)" class="btn btn-danger follow-button">Unfollow!</button>-->
-                    <!--    </div>-->
+                        <div v-if="anyuser.is_follow">
+                            <button data-id="anyuser.pk" @click="findFollows(anyuser)" class="btn btn-danger follow-button">Unfollow!</button>
+                        </div>
 
-                    <!--    <div v-else>-->
-                    <!--        <button data-id="anyuser.pk" @click="findFollows(anyuser)" class="btn btn-success follow-button">Follow!</button> -->
+                        <div v-else>
+                            <button data-id="anyuser.pk" @click="findFollows(anyuser)" class="btn btn-success follow-button">Follow!</button> 
                             
-                    <!--    </div>-->
+                        </div>
 
                 </div>
                     <div class="row my-3">
@@ -59,9 +58,10 @@
                     
                     axios.post(`/accounts/findfollow/`)
                     .then(response => {
-                        // console.log(response.data)
+                        console.log(response.data)
                         tmp = response.data
                         this.someusers = response.data
+                        this.is_follow = request.data.is_follow
                         // const someusers = response.data
                         // // console.log(someusers)
                         // someusers.forEach(user => {
